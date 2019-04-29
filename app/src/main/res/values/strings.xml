@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">Venten_assessment</string>
+
+    <string name="date_text_view">Date: %1$s </string>
+    <string name="time_text_view">Time: %1$s </string>
+
+    <string name="menu_button">Toggle</string>
+
+    <!--Permission Dialog-->
+    <string name="sms_permission_dialog_title">SMS</string>
+    <string name="contacts_permission_dialog_title">CONTACTS</string>
+    <string name="permission_dialog_message">This Permission is required for the application to function as intended</string>
+    <string name="permission_dialog_positive_action">Ok</string>
+    <string name="permission_dialog_negative_action">Cancel</string>
+
+    <!--Toast Messages-->
+    <string name="permission_granted">Permission Granted</string>
+    <string name="permission_denied">Permission Denied</string>
+</resources>
