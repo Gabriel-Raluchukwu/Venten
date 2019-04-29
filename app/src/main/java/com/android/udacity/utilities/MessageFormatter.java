@@ -43,7 +43,7 @@ public class MessageFormatter {
         colorAndDimensions = colorAndDimensions.replace(sz,"");
         String[] data = colorAndDimensions.split("/");
 
-        //
+        //Extract Length and Width Dimensions
         String dimen = data[0].trim().toLowerCase();
         String Length = dimen.substring(dimen.indexOf('w') + 1);
         String Width = dimen.replace(Length,"");
@@ -52,13 +52,13 @@ public class MessageFormatter {
         String tempLength = Length.replace("l","");
 
 
-        //ExtractColor
+        //Extract Colors
         String color = data[1].trim();
         String[] colors = color.split("-");
         String tempColor1 = colors[0];
         String tempColor2 = colors[1];
 
-        //
+        //Extract Coded message
         String tempMessage;
         if(stringToFormat.contains("AM")){
             int index = stringToFormat.indexOf("AM") + 2;
@@ -73,6 +73,9 @@ public class MessageFormatter {
         stringToFormat = stringToFormat.replace(tempMessage,"");
         String tempTime = stringToFormat.substring(1);
 
+        //Validation using Regular Expressions
+        //Every data extracted is matched against their appropiate regex before saving
+        //This is to ensure that extracted information is in the right format that the rest of the application will be able to use.
         if(tempDate.matches("(0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])[- /.](19|20)[0-9]{2}")){
             date = tempDate;
         }

@@ -1,9 +1,11 @@
 <resources>
     <string name="app_name">Venten_assessment</string>
 
+    <!--TextViews-->
     <string name="date_text_view">Date: %1$s </string>
     <string name="time_text_view">Time: %1$s </string>
 
+    <!--Menu Button-->
     <string name="menu_button">Toggle</string>
 
     <!--Permission Dialog-->

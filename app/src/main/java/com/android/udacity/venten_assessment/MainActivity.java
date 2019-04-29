@@ -48,19 +48,21 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         preferences = getSharedPreferences(Constants.PREFERENCE, Context.MODE_PRIVATE);
 
-       //Initialize TextViews;
+       //Initialize activity_main.xml Views;
         colorDisplayTextView = findViewById(R.id.colorDisplay);
         codedMessageTextView = findViewById(R.id.codedMessage);
         dateTextView = findViewById(R.id.dateView);
         timeTextView = findViewById(R.id.timeView);
 
+        //Request appropriate Permission
         PermissionRequest();
 
-
+        //Set up default Values if
         if (preferences.getBoolean(Constants.RESET,true)){
             Persist.SetUpPreferences(this);
         }
 
+        //Set up layout
         SetUpLayout();
     }
 
@@ -70,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
             if(ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.RECEIVE_SMS)){
 
+                //Display SMS permission alert dialog
                 new AlertDialog.Builder(this)
                         .setTitle(R.string.sms_permission_dialog_title)
                         .setMessage(R.string.permission_dialog_message)
@@ -87,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
                         }).create().show();
             }else if(ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.READ_CONTACTS)) {
 
+                //Display Contacts Permission alert dialog
                 new AlertDialog.Builder(this)
                         .setTitle(R.string.contacts_permission_dialog_title)
                         .setMessage(R.string.permission_dialog_message)
@@ -112,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void RequestPermission(){
+        //Request Android Permissions
         ActivityCompat.requestPermissions(this ,new String[]{Manifest.permission.RECEIVE_SMS,Manifest.permission.READ_SMS,
                 Manifest.permission.READ_CONTACTS},
                 MY_PERMISSIONS_REQUEST_RECEIVE_SMS);
@@ -146,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
         SetDateTextView();
         SetTimeTextView();
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -191,6 +197,7 @@ public class MainActivity extends AppCompatActivity {
         }
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(dateObject);
+        //Formatting date to display correctly ie 1'st', 2'nd',3'rd' and 'th'
         switch (calendar.get(Calendar.DAY_OF_MONTH)){
             case 1 :
                 finalDate = new SimpleDateFormat("dd'st' MMMM yyyy").format(dateObject);
@@ -215,16 +222,20 @@ public class MainActivity extends AppCompatActivity {
        // dateTextView.setText("Time: " + time);
     }
 
+    //Convert pixels to Density Independent pixels dps
     private int pxToDp(int parameter ){
+
         final float scale = this.getResources().getDisplayMetrics().density;
         return (int) (parameter * scale * 0.5f);
     }
 
+    //Set background color of colorDisplayTextView
     private void SetBackgroundColor(String color){
         String setColor = FormatColor(color);
         colorDisplayTextView.setBackgroundColor(Color.parseColor(setColor));
     }
 
+    //Format color String into hex color code
     private String FormatColor(String color){
         StringBuilder builder = new StringBuilder(color);
         StringBuilder formattedColor = builder.insert(0,"#");

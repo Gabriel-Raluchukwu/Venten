@@ -19,7 +19,7 @@ import com.android.udacity.utilities.Constants;
 import com.android.udacity.utilities.MessageFormatter;
 import com.android.udacity.utilities.Persist;
 
-
+// Reciever class that listens to SMS broadcasts
 public class SMSBroadcastReceiver extends BroadcastReceiver {
     private static final String TAG = "SMSBroadcastReciever";
     private static final String pdu = "pdus";
@@ -31,6 +31,7 @@ public class SMSBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Log.i(TAG, "onReceive: Broadcast SMS Message received ");
 
+        // Get message and convert to SmsMessage format
         Bundle bundle = intent.getExtras();
         if(bundle != null){
             if (Build.VERSION.SDK_INT >= 19) { //KITKAT
@@ -46,24 +47,29 @@ public class SMSBroadcastReceiver extends BroadcastReceiver {
                 }
             }
         }
-        //For Debugging purposes
-        String m = smsMessage.getMessageBody();
+
         Log.v("TAG", "handleSmsReceived" + (smsMessage.isReplace() ? "(replace)" : "") +
                 " messageUri: " +
                 ", address: " + smsMessage.getOriginatingAddress() +
                 ", body: " + smsMessage.getMessageBody());
 
+        //Get name of message sender from the Contacts content provider
         String contactName = getContactName(smsMessage.getOriginatingAddress(),context);
-        //Save to Preferences
+
+        //Save to Preferences only if message is from ven10
         if(contactName == "Ven10"){
             SaveToPreferences(context,smsMessage.getMessageBody());
         }
     }
 
+    //Formats message and retrieves relevant information
+    //Saves information to shared preferences
     private void SaveToPreferences(Context context,String messageBody){
+        //Format
         MessageFormatter formatMessage = new MessageFormatter();
         formatMessage.formatString(messageBody);
 
+        //Persist data to shared preferences
         Persist.SetDate(context,formatMessage.getDate());
         Persist.SetTime(context,formatMessage.getTime());
         Persist.SetCodedMessage(context,formatMessage.getMessage());
@@ -73,6 +79,7 @@ public class SMSBroadcastReceiver extends BroadcastReceiver {
         Persist.SetColor2(context,formatMessage.getColor2());
     }
 
+    //For Querying SMS Content Provider
      public class Broadcast extends AsyncTask<Void,String, Cursor> {
         private Context context;
         private PendingResult pendingResult;
@@ -103,6 +110,7 @@ public class SMSBroadcastReceiver extends BroadcastReceiver {
          }
      }
 
+     //Gets contact name from Contacts Content provider
      public String getContactName(final String phoneNumber, Context context)
      {
          Uri uri=Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI,Uri.encode(phoneNumber));

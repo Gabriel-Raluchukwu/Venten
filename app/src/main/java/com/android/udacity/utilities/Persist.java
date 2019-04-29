@@ -12,6 +12,7 @@ public class Persist {
         return editor;
     }
 
+    //Initial Setup 
     public static void SetUpPreferences(Context context){
        SharedPreferences.Editor editor = getSharedPreference(context);
 
