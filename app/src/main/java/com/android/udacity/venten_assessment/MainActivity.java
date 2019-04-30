@@ -57,10 +57,10 @@ public class MainActivity extends AppCompatActivity {
         //Request appropriate Permission
         PermissionRequest();
 
-        //Set up default Values if
-        if (preferences.getBoolean(Constants.RESET,true)){
-            Persist.SetUpPreferences(this);
-        }
+        //Default Values NOT used
+//        if (preferences.getBoolean(Constants.RESET,true)){
+//            Persist.SetUpPreferences(this);
+//        }
 
         //Set up layout
         SetUpLayout();
