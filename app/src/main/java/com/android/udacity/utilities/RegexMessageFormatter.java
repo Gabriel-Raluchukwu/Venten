@@ -34,7 +34,7 @@ public class RegexMessageFormatter {
         Pattern widthPattern = Pattern.compile(widthRegexPattern);
         Matcher widthMatcher = widthPattern.matcher(message);
         if(widthMatcher.find()){
-            return widthMatcher.group(0);
+            return widthMatcher.group(0).replace("w","");
         }
         return null;
     }
@@ -43,7 +43,7 @@ public class RegexMessageFormatter {
         Pattern lengthPattern = Pattern.compile(lengthRegexPattern);
         Matcher lengthMatcher = lengthPattern.matcher(message);
         if(lengthMatcher.find()){
-            return lengthMatcher.group(0);
+            return lengthMatcher.group(0).replace("l","");
         }
         return "";
     }

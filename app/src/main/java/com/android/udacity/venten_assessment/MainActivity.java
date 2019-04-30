@@ -9,7 +9,6 @@ import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,18 +19,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.udacity.utilities.Constants;
-import com.android.udacity.utilities.MessageFormatter;
-import com.android.udacity.utilities.Persist;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = "MainActivity";
     public static final int MY_PERMISSIONS_REQUEST_RECEIVE_SMS = 1000;
+    private final  HashMap<String,String>  defaultValue = new HashMap<>();
+    private Map<String,String>  layout = new HashMap<>();
 
     SharedPreferences preferences;
 
@@ -57,12 +58,11 @@ public class MainActivity extends AppCompatActivity {
         //Request appropriate Permission
         PermissionRequest();
 
-        //Default Values NOT used
-//        if (preferences.getBoolean(Constants.RESET,true)){
-//            Persist.SetUpPreferences(this);
-//        }
+        layout =(HashMap<String, String>) getIntent().getSerializableExtra(Constants.LAYOUT_MAP);
+        if(layout == null){
+            setUp();
+        }
 
-        //Set up layout
         SetUpLayout();
     }
 
@@ -140,18 +140,31 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void SetUpLayout(){
+
         ConstraintLayout.LayoutParams layoutParameters = (ConstraintLayout.LayoutParams) colorDisplayTextView.getLayoutParams();
-        layoutParameters.width = pxToDp(Integer.parseInt(preferences.getString(Constants.PREFERENCE_WIDTH,Constants.DEFAULT_WIDTH)));
-        layoutParameters.height = pxToDp(Integer.parseInt(preferences.getString(Constants.PREFERENCE_LENGTH,Constants.DEFAULT_LENGTH)));
+        layoutParameters.width = pxToDp(Integer.parseInt(layout.get(Constants.PREFERENCE_WIDTH)));
+        layoutParameters.height = pxToDp(Integer.parseInt(layout.get(Constants.PREFERENCE_LENGTH)));
         colorDisplayTextView.setLayoutParams(layoutParameters);
-        currentColor = preferences.getString(Constants.PREFERENCE_COLOR1,Constants.DEFAULT_COLOR1);
+        currentColor = layout.get(Constants.PREFERENCE_COLOR1);
         SetBackgroundColor(currentColor);
 
-        SetMessageTextView();
-        SetDateTextView();
-        SetTimeTextView();
+        SetMessageTextView(layout.get(Constants.PREFERENCE_CODED_MESSAGE));
+        SetDateTextView(layout.get(Constants.PREFERENCE_DATE));
+        SetTimeTextView(layout.get(Constants.PREFERENCE_TIME));
     }
 
+    public void setUp(){
+
+        defaultValue.put(Constants.PREFERENCE_DATE,"");
+        defaultValue.put(Constants.PREFERENCE_TIME,"");
+        defaultValue.put(Constants.PREFERENCE_CODED_MESSAGE,"");
+        defaultValue.put(Constants.PREFERENCE_LENGTH,"0");
+        defaultValue.put(Constants.PREFERENCE_WIDTH,"0");
+        defaultValue.put(Constants.PREFERENCE_COLOR1,"ffffff");
+        defaultValue.put(Constants.PREFERENCE_COLOR2,"ffffff");
+
+        layout = defaultValue;
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -163,8 +176,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int selectedMenuItem = item.getItemId();
         if (selectedMenuItem == R.id.action_toggle_menu_button){
-            String color1 = preferences.getString(Constants.PREFERENCE_COLOR1,Constants.DEFAULT_COLOR1);
-            String color2 = preferences.getString(Constants.PREFERENCE_COLOR2,Constants.DEFAULT_COLOR2);
+            String color1 = layout.get(Constants.PREFERENCE_COLOR1);
+            String color2 = layout.get(Constants.PREFERENCE_COLOR2);
            if (currentColor == color1 ){
                currentColor = color2;
                SetBackgroundColor(currentColor);
@@ -179,47 +192,49 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void SetMessageTextView(){
-        String codedMessage = preferences.getString(Constants.PREFERENCE_CODED_MESSAGE,Constants.DEFAULT_CODED_MESSAGE);
-        codedMessageTextView.setText(codedMessage);
+    private void SetMessageTextView( String message){
+        codedMessageTextView.setText(message);
     }
 
-    private void SetDateTextView(){
+    private void SetDateTextView(String _date){
         String finalDate = "";
         Date dateObject = null;
-        String date = preferences.getString(Constants.PREFERENCE_DATE,Constants.DEFAULT_DATE);
-        DateFormat dateFormatter = new SimpleDateFormat("MM/dd/yyyy");
-        try{
-            dateObject = dateFormatter.parse(date);
-        }catch (ParseException e){
-            //
-            finalDate = date;
-        }
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(dateObject);
-        //Formatting date to display correctly ie 1'st', 2'nd',3'rd' and 'th'
-        switch (calendar.get(Calendar.DAY_OF_MONTH)){
-            case 1 :
-                finalDate = new SimpleDateFormat("dd'st' MMMM yyyy").format(dateObject);
-                break;
-            case 2 :
-                finalDate = new SimpleDateFormat("dd'nd' MMMM yyyy").format(dateObject);
-                break;
-            case 3 :
-                finalDate = new SimpleDateFormat("dd'rd' MMMM yyyy").format(dateObject);
-                break;
-            default:
-                finalDate = new SimpleDateFormat("dd'th' MMMM yyyy").format(dateObject);
-        }
+        String date = _date;
+       if(!date.isEmpty() || date.length() > 0 || date != ""){
+           DateFormat dateFormatter = new SimpleDateFormat("MM/dd/yyyy");
+           try{
+               dateObject = dateFormatter.parse(date);
+           }catch (ParseException e){
+               //
+               Log.i(TAG, "SetDateTextView: date object parsing failed");
+               dateTextView.setText(getString(R.string.date_text_view,""));
+               return;
+           }
+           Calendar calendar = Calendar.getInstance();
+           calendar.setTime(dateObject);
+           //Formatting date to display correctly ie 1'st', 2'nd',3'rd' and 'th'
+           switch (calendar.get(Calendar.DAY_OF_MONTH)) {
+               case 1:
+                   finalDate = new SimpleDateFormat("dd'st' MMMM yyyy").format(dateObject);
+                   break;
+               case 2:
+                   finalDate = new SimpleDateFormat("dd'nd' MMMM yyyy").format(dateObject);
+                   break;
+               case 3:
+                   finalDate = new SimpleDateFormat("dd'rd' MMMM yyyy").format(dateObject);
+                   break;
+               default:
+                   finalDate = new SimpleDateFormat("dd'th' MMMM yyyy").format(dateObject);
+           }
+           dateTextView.setText(getString(R.string.date_text_view,finalDate));
+           return;
+       }
 
-        dateTextView.setText(getString(R.string.date_text_view,finalDate));
-        //dateTextView.setText("Date: " + finalDate);
+        dateTextView.setText(getString(R.string.date_text_view,date));
     }
 
-    private void SetTimeTextView(){
-        String time = preferences.getString(Constants.PREFERENCE_TIME,Constants.DEFAULT_TIME);
-        timeTextView.setText(getString(R.string.time_text_view,time));
-       // dateTextView.setText("Time: " + time);
+    private void SetTimeTextView(String _time){
+        timeTextView.setText(getString(R.string.time_text_view,_time));
     }
 
     //Convert pixels to Density Independent pixels dps

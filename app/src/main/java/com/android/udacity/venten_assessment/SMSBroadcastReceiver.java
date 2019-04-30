@@ -16,12 +16,15 @@ import android.telephony.SmsMessage;
 import android.os.Bundle;
 
 import com.android.udacity.utilities.Constants;
-import com.android.udacity.utilities.MessageFormatter;
-import com.android.udacity.utilities.Persist;
 import com.android.udacity.utilities.RegexMessageFormatter;
+import com.android.udacity.venten_assessment.MainActivity;
+
+import java.util.HashMap;
+import java.util.Map;
 
 // Reciever class that listens to SMS broadcasts
 public class SMSBroadcastReceiver extends BroadcastReceiver {
+    public static HashMap<String,String> layout;
     private static final String TAG = "SMSBroadcastReciever";
     private static final String pdu = "pdus";
     Cursor result;
@@ -49,8 +52,7 @@ public class SMSBroadcastReceiver extends BroadcastReceiver {
             }
         }
 
-        Log.v("TAG", "handleSmsReceived" + (smsMessage.isReplace() ? "(replace)" : "") +
-                " messageUri: " +
+        Log.v("TAG", "handleSmsReceived" +
                 ", address: " + smsMessage.getOriginatingAddress() +
                 ", body: " + smsMessage.getMessageBody());
 
@@ -58,23 +60,26 @@ public class SMSBroadcastReceiver extends BroadcastReceiver {
         String contactName = getContactName(smsMessage.getOriginatingAddress(),context);
 
         //Save to Preferences only if message is from ven10
-        if(contactName == "Ven10"){
-            SaveToPreferences(context,smsMessage.getMessageBody());
+        if(contactName.equals("ven10")){
+            InitializeLayout(smsMessage.getMessageBody());
+            Intent mainActivity = new Intent(context.getApplicationContext(),MainActivity.class);
+            mainActivity.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            mainActivity.putExtra(Constants.LAYOUT_MAP,layout);
+            context.startActivity(mainActivity);
         }
     }
 
     //Formats message and retrieves relevant information
-    //Saves information to shared preferences
-    private void SaveToPreferences(Context context,String messageBody){
-        //Format
-        Persist.SetDate(context, RegexMessageFormatter.retrieveDate(messageBody));
-        Persist.SetTime(context,RegexMessageFormatter.retrieveTime(messageBody));
-        Persist.SetCodedMessage(context,RegexMessageFormatter.retrievecodedMessage(messageBody));
-        Persist.SetWidth(context,RegexMessageFormatter.retrieveWidth(messageBody));
-        Persist.SetLength(context,RegexMessageFormatter.retrieveLength(messageBody));
-        String [] colors = RegexMessageFormatter.retrieveColors(messageBody);
-        Persist.SetColor1(context,colors[0]);
-        Persist.SetColor2(context,colors[1]);
+    private void InitializeLayout(String messageBody){
+        layout = new HashMap();
+        layout.put(Constants.PREFERENCE_DATE, RegexMessageFormatter.retrieveDate(messageBody));
+        layout.put(Constants.PREFERENCE_TIME, RegexMessageFormatter.retrieveTime(messageBody));
+        layout.put(Constants.PREFERENCE_CODED_MESSAGE, RegexMessageFormatter.retrievecodedMessage(messageBody));
+        layout.put(Constants.PREFERENCE_WIDTH, RegexMessageFormatter.retrieveWidth(messageBody));
+        layout.put(Constants.PREFERENCE_LENGTH, RegexMessageFormatter.retrieveLength(messageBody));
+        String [] color = RegexMessageFormatter.retrieveColors(messageBody);
+        layout.put(Constants.PREFERENCE_COLOR1, color[0]);
+        layout.put(Constants.PREFERENCE_COLOR2, color[1]);
     }
 
     //For Querying SMS Content Provider
