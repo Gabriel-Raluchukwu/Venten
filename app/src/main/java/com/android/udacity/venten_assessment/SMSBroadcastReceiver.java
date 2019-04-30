@@ -18,6 +18,7 @@ import android.os.Bundle;
 import com.android.udacity.utilities.Constants;
 import com.android.udacity.utilities.MessageFormatter;
 import com.android.udacity.utilities.Persist;
+import com.android.udacity.utilities.RegexMessageFormatter;
 
 // Reciever class that listens to SMS broadcasts
 public class SMSBroadcastReceiver extends BroadcastReceiver {
@@ -66,17 +67,14 @@ public class SMSBroadcastReceiver extends BroadcastReceiver {
     //Saves information to shared preferences
     private void SaveToPreferences(Context context,String messageBody){
         //Format
-        MessageFormatter formatMessage = new MessageFormatter();
-        formatMessage.formatString(messageBody);
-
-        //Persist data to shared preferences
-        Persist.SetDate(context,formatMessage.getDate());
-        Persist.SetTime(context,formatMessage.getTime());
-        Persist.SetCodedMessage(context,formatMessage.getMessage());
-        Persist.SetWidth(context,formatMessage.getWidth());
-        Persist.SetLength(context,formatMessage.getLength());
-        Persist.SetColor1(context,formatMessage.getColor1());
-        Persist.SetColor2(context,formatMessage.getColor2());
+        Persist.SetDate(context, RegexMessageFormatter.retrieveDate(messageBody));
+        Persist.SetTime(context,RegexMessageFormatter.retrieveTime(messageBody));
+        Persist.SetCodedMessage(context,RegexMessageFormatter.retrievecodedMessage(messageBody));
+        Persist.SetWidth(context,RegexMessageFormatter.retrieveWidth(messageBody));
+        Persist.SetLength(context,RegexMessageFormatter.retrieveLength(messageBody));
+        String [] colors = RegexMessageFormatter.retrieveColors(messageBody);
+        Persist.SetColor1(context,colors[0]);
+        Persist.SetColor2(context,colors[1]);
     }
 
     //For Querying SMS Content Provider
